@@ -26,7 +26,7 @@ app.use('/api/', limiter);
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: process.env.CORS_ORIGIN || 'http://localhost:8000',
   credentials: true
 }));
 
@@ -73,7 +73,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/nestconne
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
       console.log(`🚀 NESTCONNECT API running on port ${PORT}`);
-      console.log(`📱 Frontend: http://localhost:3000`);
+      console.log(`📱 Frontend: http://localhost:8000`);
       console.log(`🔧 API: http://localhost:${PORT}/api`);
     });
   })

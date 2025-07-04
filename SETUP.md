@@ -62,7 +62,7 @@ MAX_FILE_SIZE=5242880
 UPLOAD_PATH=./uploads
 
 # CORS Configuration
-CORS_ORIGIN=http://localhost:3000
+CORS_ORIGIN=http://localhost:8000
 ```
 
 ### 3. Start MongoDB
@@ -95,8 +95,8 @@ npm run dev
 ```
 
 This will start:
-- Backend API on http://localhost:5000
-- Frontend on http://localhost:3000
+- Backend API on http://localhost:8787
+- Frontend on http://localhost:8000
 
 #### Option B: Run Separately
 
@@ -114,10 +114,10 @@ npm start
 
 ### 5. Verify Installation
 
-1. **Backend API**: Visit http://localhost:5000/api/health
+1. **Backend API**: Visit http://localhost:8787/api/health
    - Should return: `{"status":"OK","message":"NESTCONNECT API is running"}`
 
-2. **Frontend**: Visit http://localhost:3000
+2. **Frontend**: Visit http://localhost:8000
    - Should show the NESTCONNECT homepage
 
 ## Development Workflow
@@ -175,7 +175,7 @@ npm start
 
 4. **CORS Errors**
    - Ensure CORS_ORIGIN in .env matches frontend URL
-   - Check that frontend is running on http://localhost:3000
+   - Check that frontend is running on http://localhost:8000
 
 ### Database Setup
 
