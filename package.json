@@ -11,10 +11,18 @@
     "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
     "start": "cd backend && npm start"
   },
-  "keywords": ["property", "listing", "real-estate", "location-based"],
+  "keywords": [
+    "property",
+    "listing",
+    "real-estate",
+    "location-based"
+  ],
   "author": "NESTCONNECT Team",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
   }
-} 
+}

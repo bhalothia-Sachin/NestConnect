@@ -21,6 +21,10 @@ frontend/.env
 frontend/.env.local
 frontend/.env.production
 webhook-server.js
+/bhalothia.cert
+/bhalothia.key
+bhalothia.org.cert
+bhalothia.org.key
 # Build outputs
 build/
 dist/
