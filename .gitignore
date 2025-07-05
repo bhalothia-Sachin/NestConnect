@@ -20,7 +20,7 @@ backend/.env.local
 frontend/.env
 frontend/.env.local
 frontend/.env.production
-
+webhook-server.js
 # Build outputs
 build/
 dist/
