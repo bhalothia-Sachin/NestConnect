@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useProperty } from '../contexts/PropertyContext';
 import PropertyCard from '../components/property/PropertyCard';
+import PropertyMap from '../components/property/PropertyMap';
 import SearchFilters from '../components/property/SearchFilters';
 import { Grid, Map, Filter, Home } from 'lucide-react';
 import { ViewMode } from '../constants/enums';
@@ -9,6 +10,7 @@ import { ViewMode } from '../constants/enums';
 const PropertyListPage: React.FC = () => {
   const { properties, loading, viewMode, setViewMode, fetchProperties } = useProperty();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const filters: any = {};
@@ -64,7 +66,7 @@ const PropertyListPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Properties Grid */}
+        {/* Properties Grid or Map */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, index) => (
@@ -76,11 +78,19 @@ const PropertyListPage: React.FC = () => {
             ))}
           </div>
         ) : properties.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {properties.map((property) => (
-              <PropertyCard key={property._id} property={property} />
-            ))}
-          </div>
+          viewMode === ViewMode.MAP ? (
+            <PropertyMap 
+              properties={properties}
+              onPropertyClick={(property) => navigate(`/properties/${property._id}`)}
+              showNavigation={true}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {properties.map((property) => (
+                <PropertyCard key={property._id} property={property} />
+              ))}
+            </div>
+          )
         ) : (
           <div className="text-center py-12">
             <Home className="w-16 h-16 text-gray-400 mx-auto mb-4" />

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { propertyAPI } from '../utils/api';
 import PublicPropertyCard from '../components/property/PublicPropertyCard';
+import PropertyMap from '../components/property/PropertyMap';
 import SearchFilters from '../components/property/SearchFilters';
 import { Grid, Map, Filter, Home, Lock, Users, ArrowRight } from 'lucide-react';
 import { ViewMode } from '../constants/enums';
@@ -36,6 +37,7 @@ const PublicPropertyListPage: React.FC = () => {
     itemsPerPage: 12
   });
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const fetchProperties = async () => {
     try {
@@ -154,7 +156,7 @@ const PublicPropertyListPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Properties Grid */}
+        {/* Properties Grid or Map */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, index) => (
@@ -166,11 +168,19 @@ const PublicPropertyListPage: React.FC = () => {
             ))}
           </div>
         ) : properties.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {properties.map((property) => (
-              <PublicPropertyCard key={property._id} property={property} />
-            ))}
-          </div>
+          viewMode === ViewMode.MAP ? (
+            <PropertyMap 
+              properties={properties as any}
+              onPropertyClick={(property) => navigate(`/browse/${property._id}`)}
+              showNavigation={true}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {properties.map((property) => (
+                <PublicPropertyCard key={property._id} property={property} />
+              ))}
+            </div>
+          )
         ) : (
           <div className="text-center py-12">
             <Home className="w-16 h-16 text-gray-400 mx-auto mb-4" />

@@ -1,139 +1,285 @@
-# Property Management Features
+# Property Management Functionality
 
-This document describes the property management functionality implemented in NestConnect, including listing, delisting, and managing properties.
+This document describes the property management functionality implemented in NestConnect, including adding and editing properties.
 
-## Features Implemented
+## Overview
 
-### 1. Sample Properties
-- Added 5 sample properties for existing homeowners
-- Properties are distributed among registered homeowners
-- Includes various property types (PG, house, flat) across different cities
-- Realistic property data with images, facilities, and details
-
-### 2. List/Delist Functionality
-- **Toggle Availability**: Switch between listed and delisted states
-- **List Property**: Make property available for viewing
-- **Delist Property**: Hide property from search results
-- Real-time status updates in the UI
-
-### 3. Property Management Dashboard
-- **My Properties Page**: Dedicated page for homeowners to manage their listings
-- **Property Statistics**: Shows total properties, listed/delisted counts, and total views
-- **Property Cards**: Display property details with status badges
-- **Quick Actions**: View, edit, list/delist, and delete properties
-
-### 4. Enhanced Dashboard
-- Real-time property statistics
-- Recent properties display
-- Quick access to property management
+The property management system allows homeowners and brokers to:
+- Add new properties with comprehensive details
+- Edit existing properties
+- Upload multiple images
+- Manage property availability (list/delist)
+- Set contact preferences
 
 ## Backend API Endpoints
 
-### Property Management Routes
-```
-PATCH /api/properties/:id/toggle-availability
-PATCH /api/properties/:id/list
-PATCH /api/properties/:id/delist
-GET /api/properties/my-properties
-```
+### Property Creation
+- **POST** `/api/properties`
+- **Access**: Private (homeowner, broker)
+- **Features**: 
+  - Multipart form data support for image uploads
+  - Comprehensive validation
+  - Automatic owner assignment
 
-### Sample Properties Script
-```bash
-cd backend
-node scripts/addSampleProperties.js
-```
+### Property Update
+- **PUT** `/api/properties/:id`
+- **Access**: Private (property owner only)
+- **Features**:
+  - Update existing property details
+  - Add new images while keeping existing ones
+  - Ownership verification
+
+### Property Retrieval
+- **GET** `/api/properties/my-properties` - User's properties
+- **GET** `/api/properties/:id` - Single property details
+- **GET** `/api/properties` - All properties with filters
+- **GET** `/api/properties/public` - Public property listings
+
+### Property Management
+- **PATCH** `/api/properties/:id/toggle-availability` - Toggle listing status
+- **DELETE** `/api/properties/:id` - Delete property
 
 ## Frontend Components
 
-### New Pages
-- `MyPropertiesPage.tsx`: Property management interface
-- Enhanced `DashboardPage.tsx`: Real-time statistics
+### PropertyForm Component
+Located at: `frontend/src/components/property/PropertyForm.tsx`
 
-### API Functions
+**Features:**
+- Comprehensive form with all property fields
+- Real-time validation
+- Image upload with preview
+- Facility selection with icons
+- Contact preference settings
+- Responsive design
+
+**Form Sections:**
+1. **Basic Information**
+   - Property title
+   - Property type (Flat, House, PG)
+   - Rent amount and type
+   - Description
+
+2. **Location Information**
+   - City, area, pin code
+   - Complete address
+
+3. **Property Details**
+   - Bedrooms, bathrooms
+   - Area (sq ft)
+   - Floor and total floors
+
+4. **Facilities**
+   - WiFi, parking, AC
+   - Kitchen, laundry, security
+   - Gym, pool, garden
+   - Balcony, furnished, pet-friendly
+
+5. **Contact Preferences**
+   - Show/hide phone number
+   - Show/hide email
+   - Show on map option
+
+6. **Images**
+   - Upload up to 10 images
+   - 5MB size limit per image
+   - Preview and remove functionality
+
+### Pages
+
+#### AddPropertyPage
+- **Route**: `/add-property`
+- **Access**: Homeowners and brokers
+- **Features**: New property creation form
+
+#### EditPropertyPage
+- **Route**: `/edit-property/:id`
+- **Access**: Property owner only
+- **Features**: Edit existing property with pre-filled data
+
+#### PropertyDetailPage
+- **Route**: `/properties/:id`
+- **Access**: Authenticated users
+- **Features**: Full property details with image gallery
+
+#### MyPropertiesPage
+- **Route**: `/my-properties`
+- **Access**: Property owners
+- **Features**: Property management with image navigation
+
+## Property Data Model
+
 ```typescript
-// Property management functions
-propertyAPI.toggleAvailability(id: string)
-propertyAPI.listProperty(id: string)
-propertyAPI.delistProperty(id: string)
-propertyAPI.getMyProperties()
+interface Property {
+  _id: string;
+  owner: PropertyOwner;
+  title: string;
+  description: string;
+  propertyType: PropertyType; // 'PG' | 'house' | 'flat'
+  rent: number;
+  rentType: RentType; // 'monthly' | 'yearly'
+  location: PropertyLocation;
+  facilities: PropertyFacilities;
+  propertyDetails: PropertyDetails;
+  images: PropertyImage[];
+  isAvailable: boolean;
+  isVerified: boolean;
+  showOnMap: boolean;
+  views: number;
+  contactInfo: PropertyContactInfo;
+  createdAt: string;
+  updatedAt: string;
+}
 ```
 
-## Usage
+## Validation Rules
 
-### For Homeowners
-1. **Access My Properties**: Navigate to "My Properties" from dashboard or navbar
-2. **View Statistics**: See total properties, listed/delisted counts, and views
-3. **Manage Properties**: 
-   - Click "List" to make property available
-   - Click "Delist" to hide property
-   - Click "Edit" to modify property details
-   - Click "Delete" to remove property
-4. **Monitor Performance**: Track views and engagement
+### Required Fields
+- Title (5-100 characters)
+- Description (20-1000 characters)
+- Property type
+- Rent amount (> 0)
+- City, area, pin code, address
 
-### Property Status
-- **Listed**: Property is visible in search results
-- **Delisted**: Property is hidden from search but not deleted
-- **Views**: Track how many times property has been viewed
+### Format Validation
+- Pin code: 6 digits
+- Rent: Positive number
+- Images: JPEG, JPG, PNG, WebP (max 5MB each)
 
-## Sample Properties Added
+## User Experience Features
 
-1. **Modern 2BHK Flat in City Center** (Mumbai)
-   - ₹25,000/month
-   - 2 bedrooms, 2 bathrooms
-   - WiFi, parking, AC, furnished
+### Image Gallery System
+- **PropertyImageGallery Component**: Full-featured image gallery with lightbox
+- **Multiple Image Support**: View all property images with navigation
+- **Thumbnail Navigation**: Click thumbnails to switch between images
+- **Lightbox Mode**: Click images to open full-screen lightbox
+- **Keyboard Navigation**: Use arrow keys in lightbox mode
+- **Image Counter**: Shows current image position (e.g., "2 / 5")
+- **Auto-play Option**: Optional automatic image rotation
+- **Responsive Design**: Works on all device sizes
 
-2. **Cozy PG for Students** (Delhi)
-   - ₹12,000/month
-   - 1 bedroom, 1 bathroom
-   - WiFi, parking, AC, kitchen
+### Image Navigation Features
+- **Property Cards**: Navigate through images with arrow buttons
+- **Image Counters**: Display current image position
+- **Smooth Transitions**: Animated image switching
+- **Touch Support**: Swipe gestures on mobile devices
+- **Zoom Functionality**: Full-screen view with zoom controls
 
-3. **Spacious 3BHK House with Garden** (Bangalore)
-   - ₹45,000/month
-   - 3 bedrooms, 3 bathrooms
-   - Garden, pet-friendly, furnished
+### Toast Notifications
+- Success messages for successful operations
+- Error messages for failed operations
+- Automatic dismissal after 4 seconds
 
-4. **Luxury 1BHK Flat with Pool** (Hyderabad)
-   - ₹35,000/month
-   - 1 bedroom, 2 bathrooms
-   - Pool, gym, garden, luxury amenities
+### Loading States
+- Form submission loading indicators
+- Image upload progress
+- Data fetching states
 
-5. **Budget-Friendly PG near Metro** (Chennai)
-   - ₹8,000/month
-   - 1 bedroom, 1 bathroom
-   - Basic amenities, near metro
+### Responsive Design
+- Mobile-friendly form layout
+- Adaptive grid systems
+- Touch-friendly controls
 
-## Technical Implementation
+## Security Features
 
-### Database Schema
-- `isAvailable` field controls property visibility
-- `views` field tracks property engagement
-- Proper indexing for performance
-
-### Security
+### Backend Security
+- Authentication required for all operations
 - Property ownership verification
-- Role-based access control
-- Protected routes for homeowners/brokers only
+- File type and size validation
+- Input sanitization and validation
 
-### UI/UX Features
-- Loading states and error handling
-- Confirmation dialogs for destructive actions
-- Real-time status updates
-- Responsive design for all devices
+### Frontend Security
+- Form validation before submission
+- File type checking
+- Size limit enforcement
+- XSS prevention
 
-## Testing
+## Usage Examples
 
-Run the test script to verify functionality:
-```bash
-cd backend
-node scripts/testPropertyManagement.js
-```
+### Adding a New Property
+1. Navigate to `/add-property`
+2. Fill in basic information
+3. Add location details
+4. Set property specifications
+5. Select available facilities
+6. Configure contact preferences
+7. Upload property images
+8. Submit form
 
-This will test the list/delist functionality and show current property status.
+### Editing a Property
+1. Navigate to `/my-properties`
+2. Click "Edit" on desired property
+3. Modify any fields as needed
+4. Add or remove images
+5. Update contact preferences
+6. Save changes
+
+### Managing Property Status
+1. Go to `/my-properties`
+2. Use "List" or "Delist" buttons
+3. Property availability updates immediately
+
+## Error Handling
+
+### Common Errors
+- **Validation Errors**: Displayed inline with form fields
+- **Network Errors**: Toast notifications with retry options
+- **Permission Errors**: Redirected to appropriate pages
+- **File Upload Errors**: Clear error messages with size/type requirements
+
+### Error Recovery
+- Form data preservation on validation errors
+- Automatic retry for network issues
+- Graceful fallbacks for missing data
 
 ## Future Enhancements
 
-1. **Bulk Operations**: List/delist multiple properties at once
-2. **Scheduling**: Auto-list/delist properties based on dates
-3. **Analytics**: Detailed property performance metrics
-4. **Notifications**: Alert when properties receive views or inquiries
-5. **Property Templates**: Save and reuse property configurations 
+### Planned Features
+- Bulk property operations
+- Advanced image editing
+- Property templates
+- Automated property verification
+- Integration with external services
+
+### Performance Optimizations
+- Image compression
+- Lazy loading for large forms
+- Caching strategies
+- Progressive enhancement
+
+## Testing
+
+### Manual Testing Checklist
+- [ ] Form validation works correctly
+- [ ] Image upload functionality
+- [ ] Edit mode pre-fills data
+- [ ] Error handling displays properly
+- [ ] Responsive design on mobile
+- [ ] Toast notifications appear
+- [ ] Navigation works correctly
+- [ ] Image gallery navigation works
+- [ ] Lightbox functionality works
+- [ ] Multiple images display correctly
+- [ ] Image counters show correct position
+- [ ] Keyboard navigation in lightbox
+- [ ] Thumbnail navigation works
+- [ ] Image captions display properly
+
+### Automated Testing
+- Unit tests for form validation
+- Integration tests for API calls
+- E2E tests for complete workflows
+- Accessibility testing
+
+## Troubleshooting
+
+### Common Issues
+1. **Images not uploading**: Check file size and type
+2. **Form not submitting**: Verify all required fields
+3. **Edit page not loading**: Check property ownership
+4. **Validation errors**: Review field requirements
+
+### Debug Information
+- Check browser console for errors
+- Verify API responses
+- Confirm authentication status
+- Validate form data structure 

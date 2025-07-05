@@ -45,6 +45,117 @@
   @apply p-4;
 }
 
+/* Leaflet Routing Machine styles */
+.leaflet-routing-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.leaflet-routing-container h2 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.leaflet-routing-alt {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.leaflet-routing-alt h3 {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  margin: 8px 16px 4px 16px;
+}
+
+.leaflet-routing-alt h4 {
+  font-size: 11px;
+  font-weight: 400;
+  color: #9ca3af;
+  margin: 4px 16px;
+}
+
+.leaflet-routing-alt tr {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.leaflet-routing-alt td {
+  padding: 4px 16px;
+  font-size: 12px;
+  color: #374151;
+}
+
+.leaflet-routing-alt tr:hover {
+  background-color: #f9fafb;
+}
+
+.leaflet-routing-container .leaflet-routing-collapse-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  margin: 8px 16px;
+}
+
+.leaflet-routing-container .leaflet-routing-collapse-btn:hover {
+  background: #2563eb;
+}
+
+.leaflet-routing-container .leaflet-routing-error {
+  color: #dc2626;
+  font-size: 12px;
+  padding: 8px 16px;
+}
+
+/* Custom property marker styles */
+.custom-property-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.custom-property-marker:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Property popup styles */
+.property-popup {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.property-popup h3 {
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+}
+
+.property-popup p {
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+
+/* Map controls */
+.leaflet-control-zoom {
+  @apply shadow-lg;
+}
+
+.leaflet-control-zoom a {
+  @apply bg-white text-gray-700 border-gray-300;
+}
+
+.leaflet-control-zoom a:hover {
+  @apply bg-gray-50 text-gray-900;
+}
+
 /* Custom styles */
 .line-clamp-1 {
   overflow: hidden;

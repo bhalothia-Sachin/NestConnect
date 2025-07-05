@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Bed, Bath, Square, Wifi, Car, Snowflake } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, Wifi, Car, Snowflake, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Property } from '../../types';
 
 interface PropertyCardProps {
@@ -8,6 +8,8 @@ interface PropertyCardProps {
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -37,6 +39,24 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
     return facilities.slice(0, 3); // Show only first 3 facilities
   };
 
+  const goToNextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (property.images && property.images.length > 1) {
+      setCurrentImageIndex((prev) => (prev + 1) % property.images.length);
+    }
+  };
+
+  const goToPreviousImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (property.images && property.images.length > 1) {
+      setCurrentImageIndex((prev) => (prev - 1 + property.images.length) % property.images.length);
+    }
+  };
+
+  const hasMultipleImages = property.images && property.images.length > 1;
+
   return (
     <Link to={`/properties/${property._id}`} className="block">
       <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
@@ -44,7 +64,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
         <div className="relative h-48 bg-gray-200">
           {property.images && property.images.length > 0 ? (
             <img
-              src={property.images[0].url}
+              src={property.images[currentImageIndex].url}
               alt={property.title}
               className="w-full h-full object-cover"
             />
@@ -52,6 +72,30 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
             <div className="w-full h-full flex items-center justify-center bg-gray-200">
               <span className="text-gray-400">No Image</span>
             </div>
+          )}
+          
+          {/* Image Navigation */}
+          {hasMultipleImages && (
+            <>
+              {/* Image Counter */}
+              <div className="absolute top-3 right-3 bg-black bg-opacity-50 text-white px-2 py-1 rounded-full text-xs">
+                {currentImageIndex + 1} / {property.images.length}
+              </div>
+
+              {/* Navigation Arrows */}
+              <button
+                onClick={goToPreviousImage}
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 rounded-full hover:bg-opacity-70 transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={goToNextImage}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 rounded-full hover:bg-opacity-70 transition-colors"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </>
           )}
           
           {/* Property Type Badge */}
@@ -62,7 +106,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
           </div>
 
           {/* Price Badge */}
-          <div className="absolute top-3 right-3">
+          <div className="absolute bottom-3 right-3">
             <span className="bg-white text-gray-900 px-3 py-1 rounded-full text-sm font-bold shadow-md">
               {formatPrice(property.rent)}
               <span className="text-xs text-gray-500 ml-1">

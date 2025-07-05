@@ -66,7 +66,7 @@ export const propertyAPI = {
   }),
   
   // Update property
-  updateProperty: (id: string, data: FormData) => api.put(`/properties/${id}`, data, {
+  updateProperty: (id: string, data: FormData) => api.put(`api/properties/${id}`, data, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -88,7 +88,7 @@ export const propertyAPI = {
   getFacilities: () => api.get('api/properties/facilities/list'),
   
   // Get properties for map
-  getMapProperties: (params = {}) => api.get('/properties/map', { params }),
+  getMapProperties: (params = {}) => api.get('api/properties/map', { params }),
 };
 
 // Auth API functions

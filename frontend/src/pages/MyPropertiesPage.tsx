@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import { propertyAPI } from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
+import ConfirmationModal from '../components/ui/ConfirmationModal';
 import { 
   Home, 
   Plus, 
@@ -22,7 +24,9 @@ import {
   Waves,
   TreePine,
   Sofa,
-  Heart
+  Heart,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { Property } from '../types';
 
@@ -32,6 +36,16 @@ const MyPropertiesPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [imageIndices, setImageIndices] = useState<Record<string, number>>({});
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    propertyId: string | null;
+    propertyTitle: string;
+  }>({
+    isOpen: false,
+    propertyId: null,
+    propertyTitle: ''
+  });
 
   useEffect(() => {
     fetchMyProperties();
@@ -68,17 +82,36 @@ const MyPropertiesPage: React.FC = () => {
     }
   };
 
-  const handleDeleteProperty = async (propertyId: string) => {
-    if (!window.confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
-      return;
-    }
+
+
+  const openDeleteModal = (propertyId: string, propertyTitle: string) => {
+    setDeleteModal({
+      isOpen: true,
+      propertyId,
+      propertyTitle
+    });
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModal({
+      isOpen: false,
+      propertyId: null,
+      propertyTitle: ''
+    });
+  };
+
+  const confirmDeleteProperty = async () => {
+    if (!deleteModal.propertyId) return;
 
     try {
-      setUpdating(propertyId);
-      await propertyAPI.deleteProperty(propertyId);
-      setProperties(prev => prev.filter(property => property._id !== propertyId));
+      setUpdating(deleteModal.propertyId);
+      await propertyAPI.deleteProperty(deleteModal.propertyId);
+      setProperties(prev => prev.filter(property => property._id !== deleteModal.propertyId));
+      closeDeleteModal();
+      toast.success('Property deleted successfully!');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to delete property');
+      toast.error(err.response?.data?.message || 'Failed to delete property');
     } finally {
       setUpdating(null);
     }
@@ -128,6 +161,28 @@ const MyPropertiesPage: React.FC = () => {
     return Object.entries(facilities)
       .filter(([_, value]) => value === true)
       .map(([key, _]) => key);
+  };
+
+  const goToNextImage = (propertyId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const property = properties.find(p => p._id === propertyId);
+    if (property && property.images && property.images.length > 1) {
+      const currentIndex = imageIndices[propertyId] || 0;
+      const nextIndex = (currentIndex + 1) % property.images.length;
+      setImageIndices(prev => ({ ...prev, [propertyId]: nextIndex }));
+    }
+  };
+
+  const goToPreviousImage = (propertyId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const property = properties.find(p => p._id === propertyId);
+    if (property && property.images && property.images.length > 1) {
+      const currentIndex = imageIndices[propertyId] || 0;
+      const prevIndex = (currentIndex - 1 + property.images.length) % property.images.length;
+      setImageIndices(prev => ({ ...prev, [propertyId]: prevIndex }));
+    }
   };
 
   if (loading) {
@@ -247,7 +302,7 @@ const MyPropertiesPage: React.FC = () => {
                 <div className="relative h-48 bg-gray-200">
                   {property.images && property.images.length > 0 ? (
                     <img
-                      src={property.images[0].url}
+                      src={property.images[imageIndices[property._id] || 0].url}
                       alt={property.title}
                       className="w-full h-full object-cover"
                     />
@@ -257,8 +312,32 @@ const MyPropertiesPage: React.FC = () => {
                     </div>
                   )}
                   
+                  {/* Image Navigation */}
+                  {property.images && property.images.length > 1 && (
+                    <>
+                      {/* Image Counter */}
+                      <div className="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-2 py-1 rounded-full text-xs">
+                        {(imageIndices[property._id] || 0) + 1} / {property.images.length}
+                      </div>
+
+                      {/* Navigation Arrows */}
+                      <button
+                        onClick={(e) => goToPreviousImage(property._id, e)}
+                        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 rounded-full hover:bg-opacity-70 transition-colors"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={(e) => goToNextImage(property._id, e)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 rounded-full hover:bg-opacity-70 transition-colors"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                  
                   {/* Status Badge */}
-                  <div className="absolute top-4 left-4">
+                  <div className="absolute bottom-4 left-4">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       property.isAvailable 
                         ? 'bg-green-100 text-green-800' 
@@ -269,7 +348,7 @@ const MyPropertiesPage: React.FC = () => {
                   </div>
 
                   {/* Views Badge */}
-                  <div className="absolute top-4 right-4">
+                  <div className="absolute bottom-4 right-4">
                     <span className="px-2 py-1 bg-black bg-opacity-50 text-white rounded-full text-xs">
                       {property.views || 0} views
                     </span>
@@ -378,7 +457,7 @@ const MyPropertiesPage: React.FC = () => {
                       </button>
 
                       <button
-                        onClick={() => handleDeleteProperty(property._id)}
+                        onClick={() => openDeleteModal(property._id, property.title)}
                         disabled={updating === property._id}
                         className="px-3 py-1 text-sm text-red-600 hover:text-red-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -391,6 +470,19 @@ const MyPropertiesPage: React.FC = () => {
             ))}
           </div>
         )}
+
+        {/* Delete Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={deleteModal.isOpen}
+          onClose={closeDeleteModal}
+          onConfirm={confirmDeleteProperty}
+          title="Delete Property"
+          message={`Are you sure you want to delete "${deleteModal.propertyTitle}"? This action cannot be undone and all property data will be permanently removed.`}
+          confirmText="Delete Property"
+          cancelText="Cancel"
+          type="danger"
+          loading={updating === deleteModal.propertyId}
+        />
       </div>
     </div>
   );

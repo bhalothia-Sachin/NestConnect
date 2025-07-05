@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProperty } from '../contexts/PropertyContext';
+import PropertyImageGallery from '../components/property/PropertyImageGallery';
+import PropertyMap from '../components/property/PropertyMap';
 import { MapPin, Bed, Bath, Square, Wifi, Car, Snowflake, Phone, Mail, MessageSquare } from 'lucide-react';
 
 const PropertyDetailPage: React.FC = () => {
@@ -45,19 +47,12 @@ const PropertyDetailPage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Property Images */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-          <div className="h-96 bg-gray-200">
-            {currentProperty.images && currentProperty.images.length > 0 ? (
-              <img
-                src={currentProperty.images[0].url}
-                alt={currentProperty.title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-gray-400 text-lg">No Image Available</span>
-              </div>
-            )}
-          </div>
+          <PropertyImageGallery 
+            images={currentProperty.images}
+            title={currentProperty.title}
+            showThumbnails={true}
+            autoPlay={false}
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -132,7 +127,7 @@ const PropertyDetailPage: React.FC = () => {
             </div>
 
             {/* Facilities */}
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Facilities</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {Object.entries(currentProperty.facilities).map(([facility, available]) => (
@@ -147,6 +142,32 @@ const PropertyDetailPage: React.FC = () => {
                 ))}
               </div>
             </div>
+
+            {/* Property Location & Navigation */}
+            {currentProperty.location.coordinates && (
+              <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Location & Navigation</h2>
+                <div className="mb-4">
+                  <div className="flex items-center text-gray-600 mb-2">
+                    <MapPin className="w-5 h-5 mr-2" />
+                    <span className="font-medium">Property Location</span>
+                  </div>
+                  <p className="text-gray-700">
+                    {currentProperty.location.address}, {currentProperty.location.area}, {currentProperty.location.city} - {currentProperty.location.pinCode}
+                  </p>
+                </div>
+                <PropertyMap
+                  properties={[currentProperty]}
+                  showNavigation={true}
+                  selectedProperty={currentProperty}
+                  center={[
+                    currentProperty.location.coordinates.latitude,
+                    currentProperty.location.coordinates.longitude
+                  ]}
+                  zoom={15}
+                />
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
