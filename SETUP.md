@@ -47,10 +47,10 @@ nano backend/.env
 
 ```env
 # Server Configuration
-PORT=5000
+PORT=8787 // update the port
 NODE_ENV=development
 
-# MongoDB Configuration
+# MongoDB Configuration (please update the mongoDB path)
 MONGODB_URI=mongodb://localhost:27017/nestconnect
 
 # JWT Configuration
@@ -62,7 +62,7 @@ MAX_FILE_SIZE=5242880
 UPLOAD_PATH=./uploads
 
 # CORS Configuration
-CORS_ORIGIN=http://localhost:8000
+CORS_ORIGIN=http://localhost/
 ```
 
 ### 3. Start MongoDB
@@ -167,7 +167,7 @@ npm start
 
 2. **Port Already in Use**
    - Change PORT in backend/.env
-   - Kill processes using the ports: `lsof -ti:5000 | xargs kill -9`
+   - Kill processes using the ports: `lsof -ti:8787 | xargs kill -9`
 
 3. **Frontend Build Errors**
    - Clear node_modules and reinstall: `rm -rf node_modules && npm install`
