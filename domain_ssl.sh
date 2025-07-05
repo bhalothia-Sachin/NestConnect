@@ -135,6 +135,80 @@ fi
 print_status "Obtaining SSL certificates from Let's Encrypt..."
 certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos --email admin@$DOMAIN --redirect
 
+# Step 9.5: Update Nginx configuration to redirect www to non-www
+print_status "Configuring www to non-www redirect..."
+cat > /etc/nginx/sites-available/nestconnect << EOF
+# Redirect www to non-www
+server {
+    listen 80;
+    listen 443 ssl;
+    server_name www.$DOMAIN;
+    
+    # SSL configuration (if exists)
+    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
+    
+    # Redirect all www traffic to non-www
+    return 301 \$scheme://$DOMAIN\$request_uri;
+}
+
+# Main server block
+server {
+    listen 80;
+    listen 443 ssl;
+    server_name $DOMAIN $IP_ADDRESS;
+
+    # SSL configuration (if exists)
+    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
+
+    # Frontend (React build files) - port 8000
+    location / {
+        proxy_pass http://localhost:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_cache_bypass \$http_upgrade;
+    }
+
+    # Backend API - port 8787
+    location /api/ {
+        proxy_pass http://localhost:8787;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_cache_bypass \$http_upgrade;
+    }
+
+    # File uploads
+    location /uploads/ {
+        alias /root/NestConnect/backend/uploads/;
+        expires 1y;
+        add_header Cache-Control "public";
+    }
+
+    # Health check endpoint
+    location /health {
+        access_log off;
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+    }
+}
+EOF
+
+# Step 9.6: Test and reload Nginx with new configuration
+print_status "Testing and reloading Nginx with www redirect configuration..."
+nginx -t
+systemctl reload nginx
+
 # Step 10: Update backend environment for HTTPS
 print_status "Updating backend environment for HTTPS..."
 cd /root/NestConnect/backend
